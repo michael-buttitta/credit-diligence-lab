@@ -78,6 +78,20 @@ def analyze(question, lines, api_key):
         return json.load(response)
 
 
+def api_error_summary(error):
+    with error:
+        try:
+            detail = json.load(error)["error"]
+        except (ValueError, KeyError, TypeError, OSError):
+            detail = None
+    if isinstance(detail, dict):
+        # The provider's free-form message can include part of an invalid key.
+        code = detail.get("code") or detail.get("type")
+        if isinstance(code, str) and code:
+            return f"OpenAI returned HTTP {error.code} ({code})."
+    return f"OpenAI returned HTTP {error.code} without an API error code."
+
+
 def cost_report(usage):
     input_tokens = usage["input_tokens"]
     cached_tokens = usage["input_tokens_details"]["cached_tokens"]
@@ -128,7 +142,7 @@ def main():
     try:
         response = analyze(args.question, lines, api_key)
     except HTTPError as error:
-        parser.exit(1, f"OpenAI returned HTTP {error.code}. Check API access, billing, or limits.\n")
+        parser.exit(1, f"{api_error_summary(error)}\n")
     except (URLError, TimeoutError) as error:
         parser.exit(1, f"Could not complete the API request: {error}\n")
 
