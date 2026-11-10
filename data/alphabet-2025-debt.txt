@@ -1,0 +1,21 @@
+Alphabet Inc. | FY2025 Form 10-K | Item 8, Note 6 (Debt)
+https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm
+
+Selected excerpt, with table reformatted and revolver disclosure paraphrased.
+Reporting date: December 31, 2025
+
+Long-Term Debt
+Future principal payments for long-term debt (USD millions)
+2026 | 2,000
+2027 | 1,000
+2028 | 2,676
+2029 | 1,764
+2030 | 5,500
+Thereafter | 36,145
+Total | 49,085
+
+Credit Facility
+Alphabet reported $10.0 billion in revolving credit facilities at year-end 2025.
+A $4.0 billion facility expires in April 2026.
+A $6.0 billion facility expires in April 2030.
+The facilities had zero outstanding borrowings at year-end 2024 and 2025.
