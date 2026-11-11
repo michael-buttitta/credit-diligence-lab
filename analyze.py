@@ -1,9 +1,14 @@
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["PyJWT[crypto]==2.15.1", "filelock==4.2.10"]
+# ///
 """Answer a credit diligence question using one public document excerpt."""
 
 import argparse
 import json
 import os
 from pathlib import Path
+import sys
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
@@ -52,10 +57,10 @@ SCHEMA = {
 }
 
 
-def analyze(question, lines, api_key):
+def analyze(question, lines, api_key, *, chatgpt=False, model=MODEL):
     numbered_excerpt = "\n".join(f"{i}: {line}" for i, line in enumerate(lines, 1))
     payload = {
-        "model": MODEL,
+        "model": model,
         "instructions": INSTRUCTIONS,
         "input": f"Question: {question}\n\nExcerpt:\n{numbered_excerpt}",
         "store": False,
@@ -69,13 +74,42 @@ def analyze(question, lines, api_key):
             },
         },
     }
+    if chatgpt:
+        payload["input"] = [{"role": "user", "content": payload["input"]}]
+        payload["stream"] = True
+        del payload["max_output_tokens"]
     request = Request(
         "https://api.openai.com/v1/responses",
         data=json.dumps(payload).encode("utf-8"),
         headers={"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"},
     )
     with urlopen(request, timeout=60) as response:
+        if chatgpt:
+            return read_stream(response)
         return json.load(response)
+
+
+def read_stream(response):
+    data = []
+    for raw_line in response:
+        line = raw_line.decode("utf-8").rstrip("\r\n")
+        if line.startswith("data:"):
+            data.append(line[5:].lstrip(" "))
+        elif not line and data:
+            event = json.loads("\n".join(data))
+            data = []
+            event_type = event.get("type")
+            if event_type == "response.completed":
+                return event["response"]
+            if event_type == "response.incomplete":
+                return event["response"]
+            if event_type in ("response.failed", "error"):
+                error = event.get("response", {}).get("error") or event
+                code = error.get("code", "unknown_error")
+                raise RuntimeError(
+                    f"ChatGPT response failed ({code}). Manage usage: https://chatgpt.com/settings/usage"
+                )
+    raise RuntimeError("ChatGPT stream ended before a terminal response event.")
 
 
 def api_error_summary(error):
@@ -92,7 +126,7 @@ def api_error_summary(error):
     return f"OpenAI returned HTTP {error.code} without an API error code."
 
 
-def cost_report(usage):
+def cost_report(usage, *, chatgpt=False):
     input_tokens = usage["input_tokens"]
     cached_tokens = usage["input_tokens_details"]["cached_tokens"]
     output_tokens = usage["output_tokens"]
@@ -105,7 +139,7 @@ def cost_report(usage):
         "input_tokens": input_tokens,
         "cached_input_tokens": cached_tokens,
         "output_tokens": output_tokens,
-        "estimated_cost_usd": round(cost, 9),
+        "estimated_cost_usd": None if chatgpt else round(cost, 9),
     }
 
 
@@ -133,22 +167,79 @@ def read_answer(response, lines):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("question", nargs="?", default=QUESTION)
+    parser.add_argument("--chatgpt", action="store_true", help="Use your authorized ChatGPT plan")
+    parser.add_argument("--model", help="Select a model slug from --models, for ChatGPT plan use")
+    actions = parser.add_mutually_exclusive_group()
+    actions.add_argument("--login", action="store_true", help="Continue with ChatGPT in your browser")
+    actions.add_argument("--models", action="store_true", help="List models available to your ChatGPT connection")
+    actions.add_argument("--accounts", action="store_true", help="List saved ChatGPT connections")
+    actions.add_argument("--select-account", metavar="ID", help="Select a saved ChatGPT connection")
+    actions.add_argument("--logout", action="store_true", help="Revoke and clear the active ChatGPT session")
+    parser.add_argument("--new-account", action="store_true", help="Register another connection with --login")
     args = parser.parse_args()
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
-    if not api_key:
-        parser.exit(1, "Set OPENAI_API_KEY in your shell before running the script.\n")
+    if args.new_account and not args.login:
+        parser.error("--new-account requires --login")
+    if args.model and not args.chatgpt:
+        parser.error("--model requires --chatgpt")
 
-    lines = DOCUMENT.read_text(encoding="utf-8").splitlines()
     try:
-        response = analyze(args.question, lines, api_key)
+        model = MODEL
+        if args.chatgpt or args.login or args.models or args.accounts or args.select_account or args.logout:
+            from chatgpt_auth import ChatGPTConnection
+
+            connection = ChatGPTConnection()
+            if args.login:
+                connection.login(new_account=args.new_account)
+                return 0
+            if args.accounts:
+                print(json.dumps(connection.accounts(), indent=2))
+                return 0
+            if args.select_account:
+                connection.select(args.select_account)
+                print("ChatGPT connection selected.")
+                return 0
+            if args.logout:
+                connection.logout()
+                print("ChatGPT session revoked and cleared locally.")
+                return 0
+            models = connection.models()
+            if args.models:
+                print(json.dumps(
+                    [{"slug": item["slug"], "display_name": item["display_name"]} for item in models],
+                    indent=2,
+                ))
+                return 0
+            if not models:
+                parser.exit(1, "No models are available to this ChatGPT connection.\n")
+            model = args.model or models[0]["slug"]
+            if model not in {item["slug"] for item in models}:
+                parser.error("Choose a model slug from --models")
+            api_key = connection.access_token()
+            print(f"Using ChatGPT plan ({model}). Manage usage: https://chatgpt.com/settings/usage", file=sys.stderr)
+        else:
+            api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+            if not api_key:
+                parser.exit(1, "Set OPENAI_API_KEY or use --login followed by --chatgpt.\n")
+
+        lines = DOCUMENT.read_text(encoding="utf-8").splitlines()
+        response = analyze(args.question, lines, api_key, chatgpt=args.chatgpt, model=model)
     except HTTPError as error:
         parser.exit(1, f"{api_error_summary(error)}\n")
     except (URLError, TimeoutError) as error:
         parser.exit(1, f"Could not complete the API request: {error}\n")
+    except (RuntimeError, ValueError) as error:
+        parser.exit(1, f"{error}\n")
+    except ImportError:
+        parser.exit(1, "Install sign-in dependencies by running this script with uv run.\n")
 
-    result = {"model": response["model"], "source": lines[1], "question": args.question}
+    result = {
+        "model": response["model"], "source": lines[1], "question": args.question,
+        "billing_source": "chatgpt_plan" if args.chatgpt else "openai_api",
+    }
+    if args.chatgpt:
+        result["manage_usage"] = "https://chatgpt.com/settings/usage"
     if response.get("usage"):
-        result["usage"] = cost_report(response["usage"])
+        result["usage"] = cost_report(response["usage"], chatgpt=args.chatgpt)
     try:
         result["analysis"] = read_answer(response, lines)
     except ValueError as error:
