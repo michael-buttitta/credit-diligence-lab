@@ -1,0 +1,290 @@
+{
+  "run_at": "2026-11-11T01:29:55.539136+00:00",
+  "mode": "offline_retrieval",
+  "source": {
+    "title": "Alphabet Inc. FY2025 Form 10-K",
+    "reporting_date": "2025-12-31",
+    "sec_url": "https://www.sec.gov/Archives/edgar/data/1652044/000165204426000018/goog-20251231.htm",
+    "pdf_url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf",
+    "pdf_sha256": "3f497fbc4a6922ebe13e3a532b073ccf55a40f7ff69b11a2cf37aac13222e2cf",
+    "imported_at": "2026-11-11T01:24:37.835555+00:00",
+    "parser": "pypdf 7.0.1, layout extraction; whitespace normalized within rows",
+    "pdf_page_count": 109,
+    "included_pdf_pages": [
+      5,
+      107
+    ]
+  },
+  "questions_sha256": "199e237216695d09bf6ee113447f0180f822c999e1462a8ad2d679285ef22fc7",
+  "passed": 4,
+  "total": 4,
+  "skipped": 1,
+  "scope": "Five curated checks for expected amounts, status, and cited pages. Manual review is required for broader credit conclusions.",
+  "cases": [
+    {
+      "id": "principal_maturities",
+      "question": "As of December 31, 2025, what long-term debt principal payments are scheduled for 2026 and 2027 combined? Show the arithmetic and state amounts in USD millions.",
+      "retrieval_pass": true,
+      "retrieved_passages": [
+        {
+          "id": "pdf-081",
+          "pdf_page": 81,
+          "section": "Item 8. Financial Statements and Supplementary Data > Note 6. Debt > Note 7. Supplemental Financial Statement Information",
+          "start_line": 3127,
+          "end_line": 3158,
+          "score": 24.716947,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=81"
+        },
+        {
+          "id": "pdf-080",
+          "pdf_page": 80,
+          "section": "Item 8. Financial Statements and Supplementary Data > Note 5. Variable Interest Entities > Note 6. Debt",
+          "start_line": 3086,
+          "end_line": 3126,
+          "score": 24.704439,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=80"
+        },
+        {
+          "id": "pdf-045",
+          "pdf_page": 45,
+          "section": "Item 7. Management's Discussion and Analysis of Financial Condition and Results of Operations",
+          "start_line": 1750,
+          "end_line": 1795,
+          "score": 19.234927,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=45"
+        },
+        {
+          "id": "pdf-044",
+          "pdf_page": 44,
+          "section": "Item 7. Management's Discussion and Analysis of Financial Condition and Results of Operations",
+          "start_line": 1708,
+          "end_line": 1749,
+          "score": 18.866273,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=44"
+        },
+        {
+          "id": "pdf-078",
+          "pdf_page": 78,
+          "section": "Item 8. Financial Statements and Supplementary Data > Note 4. Leases",
+          "start_line": 2996,
+          "end_line": 3039,
+          "score": 17.54108,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=78"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "id": "revolver_capacity",
+      "question": "As of December 31, 2025, how much revolving credit facility capacity did Alphabet report, and when do the facilities expire? State amounts in USD millions.",
+      "retrieval_pass": true,
+      "retrieved_passages": [
+        {
+          "id": "pdf-081",
+          "pdf_page": 81,
+          "section": "Item 8. Financial Statements and Supplementary Data > Note 6. Debt > Note 7. Supplemental Financial Statement Information",
+          "start_line": 3127,
+          "end_line": 3158,
+          "score": 23.633929,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=81"
+        },
+        {
+          "id": "pdf-095",
+          "pdf_page": 95,
+          "section": "Item 8. Financial Statements and Supplementary Data > Note 14. Income Taxes",
+          "start_line": 3623,
+          "end_line": 3663,
+          "score": 17.176424,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=95"
+        },
+        {
+          "id": "pdf-046",
+          "pdf_page": 46,
+          "section": "Item 7. Management's Discussion and Analysis of Financial Condition and Results of Operations",
+          "start_line": 1796,
+          "end_line": 1839,
+          "score": 13.894921,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=46"
+        },
+        {
+          "id": "pdf-092",
+          "pdf_page": 92,
+          "section": "Item 8. Financial Statements and Supplementary Data > Note 12. Net Income Per Share > Note 13. Compensation Plans",
+          "start_line": 3535,
+          "end_line": 3567,
+          "score": 10.255138,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=92"
+        },
+        {
+          "id": "pdf-075",
+          "pdf_page": 75,
+          "section": "Item 8. Financial Statements and Supplementary Data > Note 3. Financial Instruments",
+          "start_line": 2878,
+          "end_line": 2906,
+          "score": 9.749273,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=75"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "id": "operating_cash_flow",
+      "question": "What were net cash provided by operating activities in 2025 and 2024? State exact amounts in USD millions.",
+      "retrieval_pass": true,
+      "retrieved_passages": [
+        {
+          "id": "pdf-044",
+          "pdf_page": 44,
+          "section": "Item 7. Management's Discussion and Analysis of Financial Condition and Results of Operations",
+          "start_line": 1708,
+          "end_line": 1749,
+          "score": 17.356902,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=44"
+        },
+        {
+          "id": "pdf-059",
+          "pdf_page": 59,
+          "section": "Item 8. Financial Statements and Supplementary Data",
+          "start_line": 2234,
+          "end_line": 2279,
+          "score": 13.437181,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=59"
+        },
+        {
+          "id": "pdf-095",
+          "pdf_page": 95,
+          "section": "Item 8. Financial Statements and Supplementary Data > Note 14. Income Taxes",
+          "start_line": 3623,
+          "end_line": 3663,
+          "score": 12.087218,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=95"
+        },
+        {
+          "id": "pdf-077",
+          "pdf_page": 77,
+          "section": "Item 8. Financial Statements and Supplementary Data > Note 3. Financial Instruments > Note 4. Leases",
+          "start_line": 2952,
+          "end_line": 2995,
+          "score": 11.692249,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=77"
+        },
+        {
+          "id": "pdf-078",
+          "pdf_page": 78,
+          "section": "Item 8. Financial Statements and Supplementary Data > Note 4. Leases",
+          "start_line": 2996,
+          "end_line": 3039,
+          "score": 10.517154,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=78"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "id": "cash_resources",
+      "question": "What was total cash, cash equivalents, and marketable securities at December 31, 2025, and what were its two components? State exact amounts in USD millions.",
+      "retrieval_pass": true,
+      "retrieved_passages": [
+        {
+          "id": "pdf-069",
+          "pdf_page": 69,
+          "section": "Item 8. Financial Statements and Supplementary Data > Note 2. Revenues > Note 3. Financial Instruments",
+          "start_line": 2657,
+          "end_line": 2689,
+          "score": 16.920322,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=69"
+        },
+        {
+          "id": "pdf-055",
+          "pdf_page": 55,
+          "section": "Item 8. Financial Statements and Supplementary Data",
+          "start_line": 2110,
+          "end_line": 2154,
+          "score": 15.925863,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=55"
+        },
+        {
+          "id": "pdf-044",
+          "pdf_page": 44,
+          "section": "Item 7. Management's Discussion and Analysis of Financial Condition and Results of Operations",
+          "start_line": 1708,
+          "end_line": 1749,
+          "score": 15.681866,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=44"
+        },
+        {
+          "id": "pdf-070",
+          "pdf_page": 70,
+          "section": "Item 8. Financial Statements and Supplementary Data > Note 3. Financial Instruments",
+          "start_line": 2690,
+          "end_line": 2722,
+          "score": 15.542706,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=70"
+        },
+        {
+          "id": "pdf-059",
+          "pdf_page": 59,
+          "section": "Item 8. Financial Statements and Supplementary Data",
+          "start_line": 2234,
+          "end_line": 2279,
+          "score": 13.71048,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=59"
+        }
+      ],
+      "passed": true
+    },
+    {
+      "id": "missing_leverage_covenant",
+      "question": "What is the borrower's maximum permitted net leverage ratio under its credit agreement?",
+      "retrieval_pass": null,
+      "retrieved_passages": [
+        {
+          "id": "pdf-079",
+          "pdf_page": 79,
+          "section": "Item 8. Financial Statements and Supplementary Data > Note 4. Leases > Note 5. Variable Interest Entities",
+          "start_line": 3040,
+          "end_line": 3085,
+          "score": 13.776343,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=79"
+        },
+        {
+          "id": "pdf-075",
+          "pdf_page": 75,
+          "section": "Item 8. Financial Statements and Supplementary Data > Note 3. Financial Instruments",
+          "start_line": 2878,
+          "end_line": 2906,
+          "score": 11.92936,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=75"
+        },
+        {
+          "id": "pdf-047",
+          "pdf_page": 47,
+          "section": "Item 7. Management's Discussion and Analysis of Financial Condition and Results of Operations",
+          "start_line": 1840,
+          "end_line": 1882,
+          "score": 9.742055,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=47"
+        },
+        {
+          "id": "pdf-067",
+          "pdf_page": 67,
+          "section": "Item 8. Financial Statements and Supplementary Data > Note 1. Summary of Significant Accounting Policies",
+          "start_line": 2582,
+          "end_line": 2616,
+          "score": 8.911894,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=67"
+        },
+        {
+          "id": "pdf-084",
+          "pdf_page": 84,
+          "section": "Item 8. Financial Statements and Supplementary Data > Note 8. Acquisitions > Note 9. Goodwill > Note 10. Commitments and Contingencies",
+          "start_line": 3235,
+          "end_line": 3271,
+          "score": 8.839425,
+          "url": "https://s206.q4cdn.com/479360582/files/doc_financials/2025/Alphabet-GOOG-_AR_2025_WO2_TRD_WR.pdf#page=84"
+        }
+      ],
+      "passed": null
+    }
+  ]
+}

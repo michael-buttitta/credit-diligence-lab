@@ -2,7 +2,7 @@
 # requires-python = ">=3.10"
 # dependencies = ["PyJWT[crypto]==2.15.1", "filelock==4.2.10"]
 # ///
-"""Answer a credit diligence question using one public document excerpt."""
+"""Retrieve evidence from a full 10-K and answer a credit diligence question."""
 
 import argparse
 import json
@@ -30,6 +30,9 @@ If the excerpt is insufficient, say so and name the missing information.
 Include short verbatim snippets from the numbered excerpt as evidence. Each
 snippet must fit on its cited line. Cite the inputs to any calculation. Do not
 infer current availability or covenant compliance from historical balances.
+Retrieved passages are a selection from the filing. If they do not establish
+the answer, report insufficient_evidence and describe what is missing. Keep
+each quote on one supplied source line and cite the inputs to calculations.
 """.strip()
 
 SCHEMA = {
@@ -57,12 +60,13 @@ SCHEMA = {
 }
 
 
-def analyze(question, lines, api_key, *, chatgpt=False, model=MODEL):
-    numbered_excerpt = "\n".join(f"{i}: {line}" for i, line in enumerate(lines, 1))
+def analyze(question, lines, api_key, *, chatgpt=False, model=MODEL, line_numbers=None, context_header=""):
+    numbers = range(1, len(lines) + 1) if line_numbers is None else line_numbers
+    numbered_excerpt = "\n".join(f"{number}: {line}" for number, line in zip(numbers, lines))
     payload = {
         "model": model,
         "instructions": INSTRUCTIONS,
-        "input": f"Question: {question}\n\nExcerpt:\n{numbered_excerpt}",
+        "input": f"Question: {question}\n\n{context_header}\nExcerpt:\n{numbered_excerpt}",
         "store": False,
         "max_output_tokens": 900,
         "text": {
@@ -143,7 +147,9 @@ def cost_report(usage, *, chatgpt=False):
     }
 
 
-def read_answer(response, lines):
+def read_answer(response, lines, line_numbers=None):
+    numbers = range(1, len(lines) + 1) if line_numbers is None else line_numbers
+    supplied_lines = dict(zip(numbers, lines))
     if response["status"] != "completed":
         raise ValueError(f"Model response status was {response['status']}.")
     for item in response["output"]:
@@ -158,7 +164,7 @@ def read_answer(response, lines):
                     raise ValueError("Model returned an answer without evidence.")
                 for citation in answer["evidence"]:
                     number, quote = citation["line"], citation["quote"].strip()
-                    if not 1 <= number <= len(lines) or not quote or quote not in lines[number - 1]:
+                    if number not in supplied_lines or not quote or quote not in supplied_lines[number]:
                         raise ValueError(f"Evidence could not be verified on line {number}.")
                 return answer
     raise ValueError("Model returned no structured answer.")
@@ -176,15 +182,23 @@ def main():
     actions.add_argument("--select-account", metavar="ID", help="Select a saved ChatGPT connection")
     actions.add_argument("--logout", action="store_true", help="Revoke and clear the active ChatGPT session")
     parser.add_argument("--new-account", action="store_true", help="Register another connection with --login")
+    parser.add_argument("--excerpt", action="store_true", help="Use the original Night 1 excerpt")
+    parser.add_argument("--top-k", type=int, default=5, help="Retrieve 1-10 full-filing page passages")
+    actions.add_argument("--retrieve-only", action="store_true", help="Show retrieved evidence locally without an LLM call")
     args = parser.parse_args()
     if args.new_account and not args.login:
         parser.error("--new-account requires --login")
     if args.model and not args.chatgpt:
         parser.error("--model requires --chatgpt")
+    if not 1 <= args.top_k <= 10:
+        parser.error("--top-k must be between 1 and 10")
 
     try:
+        from retrieval import FilingIndex, passage_reference
+
         model = MODEL
-        if args.chatgpt or args.login or args.models or args.accounts or args.select_account or args.logout:
+        account_action = any((args.login, args.models, args.accounts, args.select_account, args.logout))
+        if account_action or (args.chatgpt and not args.retrieve_only):
             from chatgpt_auth import ChatGPTConnection
 
             connection = ChatGPTConnection()
@@ -202,13 +216,28 @@ def main():
                 connection.logout()
                 print("ChatGPT session revoked and cleared locally.")
                 return 0
-            models = connection.models()
             if args.models:
+                models = connection.models()
                 print(json.dumps(
                     [{"slug": item["slug"], "display_name": item["display_name"]} for item in models],
                     indent=2,
                 ))
                 return 0
+        # Retrieval also works without credentials or a connected account.
+        if args.excerpt:
+            lines = DOCUMENT.read_text(encoding="utf-8").splitlines()
+            context = {
+                "lines": lines, "line_numbers": list(range(1, len(lines) + 1)),
+                "source": lines[1], "passages": [], "document": {},
+            }
+        else:
+            context = FilingIndex().context(args.question, args.top_k)
+        references = [passage_reference(passage, context["document"]) for passage in context["passages"]]
+        if args.retrieve_only:
+            print(json.dumps({**context, "passages": references}, indent=2))
+            return 0
+        if args.chatgpt:
+            models = connection.models()
             if not models:
                 parser.exit(1, "No models are available to this ChatGPT connection.\n")
             model = args.model or models[0]["slug"]
@@ -221,8 +250,20 @@ def main():
             if not api_key:
                 parser.exit(1, "Set OPENAI_API_KEY or use --login followed by --chatgpt.\n")
 
-        lines = DOCUMENT.read_text(encoding="utf-8").splitlines()
-        response = analyze(args.question, lines, api_key, chatgpt=args.chatgpt, model=model)
+        lines = context["lines"]
+        header = ""
+        if not args.excerpt:
+            header = (
+                f"Source: {context['document']['title']}. Reporting date: {context['document']['reporting_date']}.\n"
+                + "\n".join(
+                    f"PDF page {item['pdf_page']}, lines {item['start_line']}-{item['end_line']}: {item['section']}"
+                    for item in references
+                )
+            )
+        response = analyze(
+            args.question, lines, api_key, chatgpt=args.chatgpt, model=model,
+            line_numbers=context["line_numbers"], context_header=header,
+        )
     except HTTPError as error:
         parser.exit(1, f"{api_error_summary(error)}\n")
     except (URLError, TimeoutError) as error:
@@ -231,17 +272,33 @@ def main():
         parser.exit(1, f"{error}\n")
     except ImportError:
         parser.exit(1, "Install sign-in dependencies by running this script with uv run.\n")
+    except FileNotFoundError:
+        parser.exit(1, "Filing corpus is missing. Run uv run ingest.py to import the full filing.\n")
 
     result = {
-        "model": response["model"], "source": lines[1], "question": args.question,
+        "model": response["model"], "source": context["source"], "question": args.question,
         "billing_source": "chatgpt_plan" if args.chatgpt else "openai_api",
     }
     if args.chatgpt:
         result["manage_usage"] = "https://chatgpt.com/settings/usage"
     if response.get("usage"):
         result["usage"] = cost_report(response["usage"], chatgpt=args.chatgpt)
+    result["retrieval"] = {
+        "method": "excerpt" if args.excerpt else "BM25 with financial term equivalents",
+        "passages": references, "document": context["document"],
+        "supplied_lines": len(lines),
+    }
     try:
-        result["analysis"] = read_answer(response, lines)
+        result["analysis"] = read_answer(response, lines, context["line_numbers"])
+        for citation in result["analysis"]["evidence"]:
+            reference = next(
+                (item for item in references if item["start_line"] <= citation["line"] <= item["end_line"]),
+                None,
+            )
+            if reference:
+                citation.update(
+                    pdf_page=reference["pdf_page"], section=reference["section"], url=reference["url"],
+                )
     except ValueError as error:
         result["error"] = str(error)
     print(json.dumps(result, indent=2))

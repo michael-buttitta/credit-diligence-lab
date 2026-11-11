@@ -1,0 +1,42 @@
+[
+  {
+    "id": "principal_maturities",
+    "question": "As of December 31, 2025, what long-term debt principal payments are scheduled for 2026 and 2027 combined? Show the arithmetic and state amounts in USD millions.",
+    "expected_status": "answered",
+    "required_page_groups": [[81]],
+    "expected_amounts_millions": [2000, 1000, 3000],
+    "expected_patterns": ["2026", "2027"]
+  },
+  {
+    "id": "revolver_capacity",
+    "question": "As of December 31, 2025, how much revolving credit facility capacity did Alphabet report, and when do the facilities expire? State amounts in USD millions.",
+    "expected_status": "answered",
+    "required_page_groups": [[81]],
+    "expected_amounts_millions": [10000, 4000, 6000],
+    "expected_patterns": ["April 2026", "April 2030"]
+  },
+  {
+    "id": "operating_cash_flow",
+    "question": "What were net cash provided by operating activities in 2025 and 2024? State exact amounts in USD millions.",
+    "expected_status": "answered",
+    "required_page_groups": [[44, 59]],
+    "expected_amounts_millions": [164713, 125299],
+    "expected_patterns": ["2025", "2024"]
+  },
+  {
+    "id": "cash_resources",
+    "question": "What was total cash, cash equivalents, and marketable securities at December 31, 2025, and what were its two components? State exact amounts in USD millions.",
+    "expected_status": "answered",
+    "required_page_groups": [[55]],
+    "expected_amounts_millions": [126843, 30708, 96135],
+    "expected_patterns": ["2025"]
+  },
+  {
+    "id": "missing_leverage_covenant",
+    "question": "What is the borrower's maximum permitted net leverage ratio under its credit agreement?",
+    "expected_status": "insufficient_evidence",
+    "required_page_groups": [],
+    "expected_amounts_millions": [],
+    "expected_patterns": []
+  }
+]
